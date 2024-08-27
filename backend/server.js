@@ -1,31 +1,43 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const dotenv = require('dotenv');
-dotenv.config();
-// const connectDB = require('./config/db'); // Assuming this is a default export
 const { connectRabbitMQ } = require('./services/rabbitmqService');
 const postRoutes = require('./routes/post');
-const app = express();
 const queueSizeEndpoint = require('./services/queueSizeEndpoint');
 
-app.use(cors());
-app.use(express.json());
+// Load environment variables from .env file
+dotenv.config();
 
+// Initialize the Express application
+const app = express();
+
+// Middleware
+app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(express.json()); // Parse JSON bodies
+
+/**
+ * Connect to MongoDB.
+ * Adjust the MongoDB URI as needed for your environment.
+ */
 mongoose.connect('mongodb://localhost:27017/react-posts')
-  .then(() => console.log('Connected to mongodb'))
-  .catch(err => console.error('Connection fail', err));
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Failed to connect to MongoDB', err));
 
-// Connect to RabbitMQ
+/**
+ * Connect to RabbitMQ for message queuing.
+ * This is used to manage queues for creating and processing posts.
+ */
 connectRabbitMQ();
 
-app.use('/auth',authRoutes);
-app.use('/post',postRoutes);
-app.use('/api', queueSizeEndpoint);
+/**
+ * Define route handlers.
+ */
+app.use('/auth', authRoutes); // Authentication routes
+app.use('/post', postRoutes); // Post management routes
+app.use('/api', queueSizeEndpoint); // Queue size endpoint
 
-
-const Port = process.env.port || 5001;
+// Server port configuration
+const Port = process.env.PORT || 5001;
 app.listen(Port, () => console.log(`Server running on port ${Port}`));
-
