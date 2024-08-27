@@ -1,17 +1,18 @@
 const express = require('express');
-const Post = require('../models/Post'); // Assuming Post and IPost are in the same model
-const authMiddleware = require('../middleware/auth');
-const { addToQueue } = require('../services/rabbitmqService');
+const Post = require('../models/Post'); // Import Post model for database operations
+const authMiddleware = require('../middleware/auth'); // Middleware for authentication
+const { addToQueue } = require('../services/rabbitmqService'); // Function to add posts to RabbitMQ queue
 
 const router = express.Router();
 
 /**
- * Route to create a Post.
- * @param req - Express request object.
- * @param res - Express response object.
-*/
-    router.post('/', authMiddleware, async (req, res) => {
-    console.log("Inside post creation route");
+ * Route to create a new post.
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @returns {Object} JSON response with the created post or error message.
+ */
+router.post('/', authMiddleware, async (req, res) => {
+  console.log("Inside post creation route");
 
   try {
     const { title, message } = req.body;
@@ -29,7 +30,7 @@ const router = express.Router();
     // Add the post to RabbitMQ queue
     addToQueue(post);
 
-    // Simulate a long-running task before saving the post
+    // Simulate a delay before saving the post
     return new Promise((resolve) => {
       setTimeout(async () => {
         try {
@@ -49,32 +50,37 @@ const router = express.Router();
 });
 
 /**
- * Route to fetch Posts with caching.
- * @param req - Express request object.
- * @param res - Express response object.
+ * Route to fetch posts with caching.
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @returns {Object} JSON response with the posts or error message.
  */
-let cache = {};
+let cache = {}; // In-memory cache for posts
 router.get('/', async (req, res) => {
-  console.log("Inside post");
+  console.log("Inside post fetch route");
 
   const { query } = req;
   const cacheKey = JSON.stringify(query);
+  
+  // Check if the result is already in the cache
   if (cache[cacheKey]) {
     return res.json(cache[cacheKey]);
   }
+
   try {
+    const title = query.query; // Extract query parameter
+    console.log('Fetching posts with title:', title);
     
-    const title = query.query; // Extract title directly from query
-    console.log(title, cacheKey);
-    
-    const posts = await Post.find({title : title});
-    console.log("posts",posts);
+    // Fetch posts from the database
+    const posts = await Post.find({ title: title });
+    console.log('Fetched posts:', posts);
 
-
+    // Store the result in the cache
     cache[cacheKey] = posts;
     setTimeout(() => {
-      delete cache[cacheKey];
-    }, 300000); // Cache invalidation after 5 minutes
+      delete cache[cacheKey]; // Invalidate cache after 5 minutes
+    }, 300000); // 5 minutes
+
     return res.json(posts);
   } catch (error) {
     console.error('Error fetching posts:', error);
