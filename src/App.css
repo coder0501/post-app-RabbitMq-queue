@@ -42,9 +42,9 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+/* button:hover {
   background-color: #0056b3;
-}
+} */
 
 .error {
   color: red;
@@ -115,9 +115,9 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+/* button:hover {
   background-color: #0056b3;
-}
+} */
 
 .blog-list, .blog-detail, .create-blog, .edit-blog, .dashboard {
   margin: 2rem 0;
