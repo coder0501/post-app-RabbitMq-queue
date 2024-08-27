@@ -1,5 +1,5 @@
-# React + Vite
-MERN Stack Project: Post Manager Dashboard
+# MERN Stack Project: Post Manager Dashboard
+
 Overview
 This project is a Post Manager Dashboard application built using the MERN (MongoDB, Express.js, React.js, Node.js) stack. The application allows users to create, manage, and search for posts. It showcases the integration of both frontend and backend technologies to create a full-fledged web application.
 
