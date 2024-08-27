@@ -23,7 +23,7 @@ const SearchPosts = ({ onSearch }) => {
         placeholder="Search Posts"
         required
       />
-      <button type="submit">Search</button>
+      <button type="submit" className='btn'>Search</button>
     </form>
   );
 };
